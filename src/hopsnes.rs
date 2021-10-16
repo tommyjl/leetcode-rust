@@ -74,6 +74,46 @@ pub fn mergerino_fast(target: &mut [i32], to_merge: &mut [i32]) {
     }
 }
 
+pub fn mergerino_fast_v2(l: &mut [i32], r: &mut [i32]) {
+    if l.len() == r.len() {
+        #[allow(clippy::manual_memcpy)]
+        for i in 0..l.len() {
+            l[i] = r[i];
+        }
+        return;
+    }
+
+    let mut l_end = l.len() - r.len() - 1;
+    let mut r_end = r.len() - 1;
+
+    let mut l_done = false;
+    for end in (0..l.len()).rev() {
+        if l_done {
+            l[end] = r[r_end];
+            if end == 0 {
+                return;
+            }
+            r_end -= 1;
+            continue;
+        }
+
+        if l[l_end] > r[r_end] {
+            l[end] = l[l_end];
+            if l_end > 0 {
+                l_end -= 1;
+            } else {
+                l_done = true;
+            }
+        } else {
+            l[end] = r[r_end];
+            if r_end == 0 {
+                return;
+            }
+            r_end -= 1;
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -111,6 +151,14 @@ mod tests {
     }
 
     #[test]
+    fn mergerino_slow_5() {
+        let mut target = vec![2, 5, 8, 10, 12, 0, 0, 0, 0, 0, 0];
+        let mut merger = vec![3, 5, 9, 17, 19, 22];
+        mergerino_fast(&mut target, &mut merger);
+        assert_eq!(target, vec![2, 3, 5, 5, 8, 9, 10, 12, 17, 19, 22]);
+    }
+
+    #[test]
     fn mergerino_fast_1() {
         let mut target = vec![3, 5, 8, 10, 12, 0, 0, 0, 0, 0, 0];
         let mut merger = vec![2, 5, 9, 17, 19, 22];
@@ -140,5 +188,53 @@ mod tests {
         let mut merger = vec![2, 5, 9, 17, 19, 22];
         mergerino_fast(&mut target, &mut merger);
         assert_eq!(target, vec![2, 5, 9, 17, 19, 22]);
+    }
+
+    #[test]
+    fn mergerino_fast_5() {
+        let mut target = vec![2, 5, 8, 10, 12, 0, 0, 0, 0, 0, 0];
+        let mut merger = vec![3, 5, 9, 17, 19, 22];
+        mergerino_fast(&mut target, &mut merger);
+        assert_eq!(target, vec![2, 3, 5, 5, 8, 9, 10, 12, 17, 19, 22]);
+    }
+
+    #[test]
+    fn mergerino_fast_v2_1() {
+        let mut target = vec![3, 5, 8, 10, 12, 0, 0, 0, 0, 0, 0];
+        let mut merger = vec![2, 5, 9, 17, 19, 22];
+        mergerino_fast_v2(&mut target, &mut merger);
+        assert_eq!(target, vec![2, 3, 5, 5, 8, 9, 10, 12, 17, 19, 22]);
+    }
+
+    #[test]
+    fn mergerino_fast_v2_2() {
+        let mut target = vec![3, 5, 8, 10, 12, 0, 0, 0, 0, 0, 0];
+        let mut merger = vec![2, 5, 9, 17, 19, 22];
+        mergerino_fast_v2(&mut target, &mut merger);
+        assert_eq!(target, vec![2, 3, 5, 5, 8, 9, 10, 12, 17, 19, 22]);
+    }
+
+    #[test]
+    fn mergerino_fast_v2_3() {
+        let mut target = vec![5, 5, 5, 5, 5, 0, 0, 0, 0, 0, 0];
+        let mut merger = vec![5, 5, 5, 5, 5, 5];
+        mergerino_fast_v2(&mut target, &mut merger);
+        assert_eq!(target, vec![5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]);
+    }
+
+    #[test]
+    fn mergerino_fast_v2_4() {
+        let mut target = vec![0, 0, 0, 0, 0, 0];
+        let mut merger = vec![2, 5, 9, 17, 19, 22];
+        mergerino_fast_v2(&mut target, &mut merger);
+        assert_eq!(target, vec![2, 5, 9, 17, 19, 22]);
+    }
+
+    #[test]
+    fn mergerino_fast_v2_5() {
+        let mut target = vec![2, 5, 8, 10, 12, 0, 0, 0, 0, 0, 0];
+        let mut merger = vec![3, 5, 9, 17, 19, 22];
+        mergerino_fast_v2(&mut target, &mut merger);
+        assert_eq!(target, vec![2, 3, 5, 5, 8, 9, 10, 12, 17, 19, 22]);
     }
 }
