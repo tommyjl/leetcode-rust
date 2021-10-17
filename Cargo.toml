@@ -4,6 +4,14 @@ version = "0.1.0"
 authors = ["Tommy Joe Lund <tomlun92@gmail.com>"]
 edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[profile.bench]
+debug = true
+lto = true
+codegen-units = 1
 
-[dependencies]
+[dev-dependencies]
+rand = { version = "0.8", features = ["small_rng"] }
+
+[[bench]]
+name = "hopsnes"
+path = "benches/hopsnes.rs"
