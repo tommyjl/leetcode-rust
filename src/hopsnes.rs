@@ -75,41 +75,32 @@ pub fn mergerino_fast(target: &mut [i32], to_merge: &mut [i32]) {
 }
 
 pub fn mergerino_fast_v2(l: &mut [i32], r: &mut [i32]) {
-    if l.len() == r.len() {
-        #[allow(clippy::manual_memcpy)]
-        for i in 0..l.len() {
-            l[i] = r[i];
-        }
-        return;
-    }
-
-    let mut l_end = l.len() - r.len() - 1;
-    let mut r_end = r.len() - 1;
-
-    let mut l_done = false;
-    for end in (0..l.len()).rev() {
-        if l_done {
-            l[end] = r[r_end];
-            if end == 0 {
-                return;
-            }
-            r_end -= 1;
-            continue;
-        }
-
-        if l[l_end] > r[r_end] {
-            l[end] = l[l_end];
-            if l_end > 0 {
-                l_end -= 1;
-            } else {
-                l_done = true;
-            }
+    let (mut l_end, mut r_end) = {
+        if l.is_empty() {
+            (None, None)
+        } else if l.len() == r.len() {
+            (None, Some(r.len() - 1))
         } else {
-            l[end] = r[r_end];
-            if r_end == 0 {
-                return;
+            (Some(l.len() - r.len() - 1), Some(r.len() - 1))
+        }
+    };
+
+    for end in (0..l.len()).rev() {
+        match (l_end, r_end) {
+            (None, Some(r_idx)) => {
+                l[end] = r[r_idx];
+                r_end = if end == 0 { None } else { Some(r_idx - 1) };
             }
-            r_end -= 1;
+            (Some(l_idx), Some(r_idx)) => {
+                if l[l_idx] > r[r_idx] {
+                    l[end] = l[l_idx];
+                    l_end = if l_idx > 0 { Some(l_idx - 1) } else { None };
+                } else {
+                    l[end] = r[r_idx];
+                    r_end = if r_idx > 0 { Some(r_idx - 1) } else { None };
+                };
+            }
+            _ => return,
         }
     }
 }
