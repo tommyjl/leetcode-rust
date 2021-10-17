@@ -6,8 +6,14 @@ use leetcode_rust::hopsnes::*;
 use rand::prelude::*;
 use test::Bencher;
 
-const LEFT_CAPACITY: usize = 10_000;
-const RIGHT_CAPACITY: usize = 10_000;
+const SEED: u64 = 12345;
+
+fn make_vecs(left_capacity: usize, right_capacity: usize) -> (Vec<i32>, Vec<i32>) {
+    let mut rng = SmallRng::seed_from_u64(SEED);
+    let left = new_vec(left_capacity, right_capacity, &mut rng);
+    let right = new_vec(right_capacity, 0, &mut rng);
+    (left, right)
+}
 
 fn new_vec(length: usize, zeroes: usize, rng: &mut SmallRng) -> Vec<i32> {
     let capacity = length + zeroes;
@@ -20,26 +26,23 @@ fn new_vec(length: usize, zeroes: usize, rng: &mut SmallRng) -> Vec<i32> {
     vec
 }
 
-#[bench]
-fn slow(b: &mut Bencher) {
-    let mut rng = SmallRng::seed_from_u64(69420);
-    let mut left = new_vec(LEFT_CAPACITY, RIGHT_CAPACITY, &mut rng);
-    let mut right = new_vec(RIGHT_CAPACITY, 0, &mut rng);
-    b.iter(|| mergerino_slow(&mut left, &mut right));
+macro_rules! mergerino_bench {
+    ($($test:ident, $func:ident, $left:literal, $right:literal;)+) => {
+        $(
+            #[bench]
+            fn $test(b: &mut Bencher) {
+                let (mut left, mut right) = make_vecs($left, $right);
+                b.iter(|| $func(&mut left, &mut right));
+            }
+        )+
+    };
 }
 
-#[bench]
-fn fast(b: &mut Bencher) {
-    let mut rng = SmallRng::seed_from_u64(69420);
-    let mut left = new_vec(LEFT_CAPACITY, RIGHT_CAPACITY, &mut rng);
-    let mut right = new_vec(RIGHT_CAPACITY, 0, &mut rng);
-    b.iter(|| mergerino_fast(&mut left, &mut right));
-}
-
-#[bench]
-fn fast_v2(b: &mut Bencher) {
-    let mut rng = SmallRng::seed_from_u64(69420);
-    let mut left = new_vec(LEFT_CAPACITY, RIGHT_CAPACITY, &mut rng);
-    let mut right = new_vec(RIGHT_CAPACITY, 0, &mut rng);
-    b.iter(|| mergerino_fast_v2(&mut left, &mut right));
+mergerino_bench! {
+    slow_10k,       mergerino_slow,    10_000,  10_000;
+    slow_1k,        mergerino_slow,     1_000,   1_000;
+    fast_10k,       mergerino_fast,    10_000,  10_000;
+    fast_1k,        mergerino_fast,     1_000,   1_000;
+    fast_v2_10k,    mergerino_fast_v2, 10_000,  10_000;
+    fast_v2_1k,     mergerino_fast_v2,  1_000,   1_000;
 }
