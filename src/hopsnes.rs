@@ -8,27 +8,34 @@
 
 use std::mem::swap;
 
-pub fn mergerino_slow(target: &mut [i32], to_merge: &mut [i32]) {
-    let mut i = 0;
-    let mut j = 1;
-    for t in target.iter_mut() {
-        if *t == 0 {
-            swap(t, &mut to_merge[i]);
-            i += 1;
-            j += 1;
-            continue;
-        }
-        if *t <= to_merge[i] {
-            continue;
-        }
-        swap(t, &mut to_merge[i]);
+pub fn mergerino_slow(l: &mut [i32], r: &mut [i32]) {
+    let mut r_idx = 0;
+    for l_next in l.iter_mut() {
+        if r_idx == r.len() {
+            return;
+        };
 
-        let mut i2 = i;
-        let mut j2 = j;
-        while to_merge[i2] > to_merge[j2] && j2 < to_merge.len() {
-            to_merge.swap(j2, i2);
-            i2 += 1;
-            j2 += 1;
+        if *l_next == 0 {
+            swap(l_next, &mut r[r_idx]);
+            r_idx += 1;
+            continue;
+        }
+
+        if *l_next <= r[r_idx] {
+            continue;
+        }
+
+        swap(l_next, &mut r[r_idx]);
+
+        // One pass of bubble-sort
+        let mut r_idx_next = r_idx;
+        while r_idx_next < (r.len() - 1) {
+            if r[r_idx_next] > r[r_idx_next + 1] {
+                r.swap(r_idx_next, r_idx_next + 1);
+                r_idx_next += 1;
+            } else {
+                break;
+            }
         }
     }
 }
