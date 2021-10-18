@@ -81,34 +81,65 @@ pub fn mergerino_fast(target: &mut [i32], to_merge: &mut [i32]) {
     }
 }
 
-pub fn mergerino_fast_v2(l: &mut [i32], r: &mut [i32]) {
+pub fn mergerino_fast_v2_assign(l: &mut [i32], r: &mut [i32]) {
     let (mut l_end, mut r_end) = {
         if l.is_empty() {
-            (None, None)
+            (-1, -1)
         } else if l.len() == r.len() {
-            (None, Some(r.len() - 1))
+            (-1, r.len() as isize - 1)
         } else {
-            (Some(l.len() - r.len() - 1), Some(r.len() - 1))
+            (
+                l.len() as isize - r.len() as isize - 1,
+                r.len() as isize - 1,
+            )
         }
     };
 
     for end in (0..l.len()).rev() {
-        match (l_end, r_end) {
-            (None, Some(r_idx)) => {
-                l[end] = r[r_idx];
-                r_end = if end == 0 { None } else { Some(r_idx - 1) };
-            }
-            (Some(l_idx), Some(r_idx)) => {
-                if l[l_idx] > r[r_idx] {
-                    l[end] = l[l_idx];
-                    l_end = if l_idx > 0 { Some(l_idx - 1) } else { None };
-                } else {
-                    l[end] = r[r_idx];
-                    r_end = if r_idx > 0 { Some(r_idx - 1) } else { None };
-                };
-            }
-            _ => return,
+        if r_end < 0 {
+            return;
         }
+        if l_end < 0 {
+            l[end] = r[r_end as usize];
+            r_end -= 1;
+        } else if l[l_end as usize] > r[r_end as usize] {
+            l[end] = l[l_end as usize];
+            l_end -= 1;
+        } else {
+            l[end] = r[r_end as usize];
+            r_end -= 1;
+        };
+    }
+}
+
+pub fn mergerino_fast_v2_swap(l: &mut [i32], r: &mut [i32]) {
+    let (mut l_end, mut r_end) = {
+        if l.is_empty() {
+            (-1, -1)
+        } else if l.len() == r.len() {
+            (-1, r.len() as isize - 1)
+        } else {
+            (
+                l.len() as isize - r.len() as isize - 1,
+                r.len() as isize - 1,
+            )
+        }
+    };
+
+    for end in (0..l.len()).rev() {
+        if r_end < 0 {
+            return;
+        }
+        if l_end < 0 {
+            swap(&mut l[end], &mut r[r_end as usize]);
+            r_end -= 1;
+        } else if l[l_end as usize] > r[r_end as usize] {
+            l.swap(end, l_end as usize);
+            l_end -= 1;
+        } else {
+            swap(&mut l[end], &mut r[r_end as usize]);
+            r_end -= 1;
+        };
     }
 }
 
@@ -197,42 +228,82 @@ mod tests {
     }
 
     #[test]
-    fn mergerino_fast_v2_1() {
+    fn mergerino_fast_v2_assign_1() {
         let mut target = vec![3, 5, 8, 10, 12, 0, 0, 0, 0, 0, 0];
         let mut merger = vec![2, 5, 9, 17, 19, 22];
-        mergerino_fast_v2(&mut target, &mut merger);
+        mergerino_fast_v2_assign(&mut target, &mut merger);
         assert_eq!(target, vec![2, 3, 5, 5, 8, 9, 10, 12, 17, 19, 22]);
     }
 
     #[test]
-    fn mergerino_fast_v2_2() {
+    fn mergerino_fast_v2_assign_2() {
         let mut target = vec![3, 5, 8, 10, 12, 0, 0, 0, 0, 0, 0];
         let mut merger = vec![2, 5, 9, 17, 19, 22];
-        mergerino_fast_v2(&mut target, &mut merger);
+        mergerino_fast_v2_assign(&mut target, &mut merger);
         assert_eq!(target, vec![2, 3, 5, 5, 8, 9, 10, 12, 17, 19, 22]);
     }
 
     #[test]
-    fn mergerino_fast_v2_3() {
+    fn mergerino_fast_v2_assign_3() {
         let mut target = vec![5, 5, 5, 5, 5, 0, 0, 0, 0, 0, 0];
         let mut merger = vec![5, 5, 5, 5, 5, 5];
-        mergerino_fast_v2(&mut target, &mut merger);
+        mergerino_fast_v2_assign(&mut target, &mut merger);
         assert_eq!(target, vec![5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]);
     }
 
     #[test]
-    fn mergerino_fast_v2_4() {
+    fn mergerino_fast_v2_assign_4() {
         let mut target = vec![0, 0, 0, 0, 0, 0];
         let mut merger = vec![2, 5, 9, 17, 19, 22];
-        mergerino_fast_v2(&mut target, &mut merger);
+        mergerino_fast_v2_assign(&mut target, &mut merger);
         assert_eq!(target, vec![2, 5, 9, 17, 19, 22]);
     }
 
     #[test]
-    fn mergerino_fast_v2_5() {
+    fn mergerino_fast_v2_assign_5() {
         let mut target = vec![2, 5, 8, 10, 12, 0, 0, 0, 0, 0, 0];
         let mut merger = vec![3, 5, 9, 17, 19, 22];
-        mergerino_fast_v2(&mut target, &mut merger);
+        mergerino_fast_v2_assign(&mut target, &mut merger);
+        assert_eq!(target, vec![2, 3, 5, 5, 8, 9, 10, 12, 17, 19, 22]);
+    }
+
+    #[test]
+    fn mergerino_fast_v2_swap_1() {
+        let mut target = vec![3, 5, 8, 10, 12, 0, 0, 0, 0, 0, 0];
+        let mut merger = vec![2, 5, 9, 17, 19, 22];
+        mergerino_fast_v2_swap(&mut target, &mut merger);
+        assert_eq!(target, vec![2, 3, 5, 5, 8, 9, 10, 12, 17, 19, 22]);
+    }
+
+    #[test]
+    fn mergerino_fast_v2_swap_2() {
+        let mut target = vec![3, 5, 8, 10, 12, 0, 0, 0, 0, 0, 0];
+        let mut merger = vec![2, 5, 9, 17, 19, 22];
+        mergerino_fast_v2_swap(&mut target, &mut merger);
+        assert_eq!(target, vec![2, 3, 5, 5, 8, 9, 10, 12, 17, 19, 22]);
+    }
+
+    #[test]
+    fn mergerino_fast_v2_swap_3() {
+        let mut target = vec![5, 5, 5, 5, 5, 0, 0, 0, 0, 0, 0];
+        let mut merger = vec![5, 5, 5, 5, 5, 5];
+        mergerino_fast_v2_swap(&mut target, &mut merger);
+        assert_eq!(target, vec![5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]);
+    }
+
+    #[test]
+    fn mergerino_fast_v2_swap_4() {
+        let mut target = vec![0, 0, 0, 0, 0, 0];
+        let mut merger = vec![2, 5, 9, 17, 19, 22];
+        mergerino_fast_v2_swap(&mut target, &mut merger);
+        assert_eq!(target, vec![2, 5, 9, 17, 19, 22]);
+    }
+
+    #[test]
+    fn mergerino_fast_v2_swap_5() {
+        let mut target = vec![2, 5, 8, 10, 12, 0, 0, 0, 0, 0, 0];
+        let mut merger = vec![3, 5, 9, 17, 19, 22];
+        mergerino_fast_v2_swap(&mut target, &mut merger);
         assert_eq!(target, vec![2, 3, 5, 5, 8, 9, 10, 12, 17, 19, 22]);
     }
 }

@@ -39,10 +39,18 @@ macro_rules! mergerino_bench {
 }
 
 mergerino_bench! {
-    slow_10k,       mergerino_slow,    10_000,  10_000;
-    slow_1k,        mergerino_slow,     1_000,   1_000;
-    fast_10k,       mergerino_fast,    10_000,  10_000;
-    fast_1k,        mergerino_fast,     1_000,   1_000;
-    fast_v2_10k,    mergerino_fast_v2, 10_000,  10_000;
-    fast_v2_1k,     mergerino_fast_v2,  1_000,   1_000;
+    slow_10k,   mergerino_slow,  10_000, 10_000;
+    slow_1k,    mergerino_slow,   1_000,  1_000;
+
+    fast_100k,  mergerino_fast, 100_000, 100_000;
+    fast_10k,   mergerino_fast,  10_000,  10_000;
+    fast_1k,    mergerino_fast,   1_000,   1_000;
+
+    fast_v2_assign_100k,    mergerino_fast_v2_assign, 100_000, 100_000;
+    fast_v2_assign_10k,     mergerino_fast_v2_assign,  10_000,  10_000;
+    fast_v2_assign_1k,      mergerino_fast_v2_assign,   1_000,   1_000;
+
+    fast_v2_swap_100k,      mergerino_fast_v2_swap,   100_000, 100_000;
+    fast_v2_swap_10k,       mergerino_fast_v2_swap,    10_000,  10_000;
+    fast_v2_swap_1k,        mergerino_fast_v2_swap,     1_000,   1_000;
 }
