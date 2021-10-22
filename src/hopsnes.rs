@@ -143,6 +143,53 @@ pub fn mergerino_fast_v2_swap(l: &mut [i32], r: &mut [i32]) {
     }
 }
 
+struct Heap<'a> {
+    l: &'a [i32],
+    r: &'a [i32],
+}
+
+impl<'a> Heap<'a> {
+    pub fn new(l: &'a [i32], r: &'a [i32]) -> Self {
+        Self { l, r }
+    }
+
+    pub fn pop(&mut self) -> Option<i32> {
+        if self.l.is_empty() {
+            let head = self.r[0];
+            self.r = &self.r[1..];
+            Some(head)
+        } else if self.r.is_empty() {
+            let head = self.l[0];
+            self.l = &self.l[1..];
+            Some(head)
+        } else {
+            let l_head = self.l[0];
+            let r_head = self.r[0];
+            if l_head < r_head {
+                self.l = &self.l[1..];
+                Some(l_head)
+            } else {
+                self.r = &self.r[1..];
+                Some(r_head)
+            }
+        }
+    }
+}
+
+pub fn mergerino_heap(l: &mut [i32], r: &mut [i32]) {
+    let cap = l.len() - r.len();
+    let mut heap_l = Vec::with_capacity(cap);
+    for i in 0..cap {
+        heap_l.push(l[i]);
+    }
+
+    let mut heap = Heap::new(&heap_l, r);
+
+    for next in l.iter_mut() {
+        *next = heap.pop().unwrap();
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -304,6 +351,46 @@ mod tests {
         let mut target = vec![2, 5, 8, 10, 12, 0, 0, 0, 0, 0, 0];
         let mut merger = vec![3, 5, 9, 17, 19, 22];
         mergerino_fast_v2_swap(&mut target, &mut merger);
+        assert_eq!(target, vec![2, 3, 5, 5, 8, 9, 10, 12, 17, 19, 22]);
+    }
+
+    #[test]
+    fn mergerino_heap_1() {
+        let mut target = vec![3, 5, 8, 10, 12, 0, 0, 0, 0, 0, 0];
+        let mut merger = vec![2, 5, 9, 17, 19, 22];
+        mergerino_heap(&mut target, &mut merger);
+        assert_eq!(target, vec![2, 3, 5, 5, 8, 9, 10, 12, 17, 19, 22]);
+    }
+
+    #[test]
+    fn mergerino_heap_2() {
+        let mut target = vec![3, 5, 8, 10, 12, 0, 0, 0, 0, 0, 0];
+        let mut merger = vec![2, 5, 9, 17, 19, 22];
+        mergerino_heap(&mut target, &mut merger);
+        assert_eq!(target, vec![2, 3, 5, 5, 8, 9, 10, 12, 17, 19, 22]);
+    }
+
+    #[test]
+    fn mergerino_heap_3() {
+        let mut target = vec![5, 5, 5, 5, 5, 0, 0, 0, 0, 0, 0];
+        let mut merger = vec![5, 5, 5, 5, 5, 5];
+        mergerino_heap(&mut target, &mut merger);
+        assert_eq!(target, vec![5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]);
+    }
+
+    #[test]
+    fn mergerino_heap_4() {
+        let mut target = vec![0, 0, 0, 0, 0, 0];
+        let mut merger = vec![2, 5, 9, 17, 19, 22];
+        mergerino_heap(&mut target, &mut merger);
+        assert_eq!(target, vec![2, 5, 9, 17, 19, 22]);
+    }
+
+    #[test]
+    fn mergerino_heap_5() {
+        let mut target = vec![2, 5, 8, 10, 12, 0, 0, 0, 0, 0, 0];
+        let mut merger = vec![3, 5, 9, 17, 19, 22];
+        mergerino_heap(&mut target, &mut merger);
         assert_eq!(target, vec![2, 3, 5, 5, 8, 9, 10, 12, 17, 19, 22]);
     }
 }

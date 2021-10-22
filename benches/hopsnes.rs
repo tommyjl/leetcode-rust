@@ -53,4 +53,8 @@ mergerino_bench! {
     fast_v2_swap_100k,      mergerino_fast_v2_swap,   100_000, 100_000;
     fast_v2_swap_10k,       mergerino_fast_v2_swap,    10_000,  10_000;
     fast_v2_swap_1k,        mergerino_fast_v2_swap,     1_000,   1_000;
+
+    heap_100k,      mergerino_heap,   100_000, 100_000;
+    heap_10k,       mergerino_heap,    10_000,  10_000;
+    heap_1k,        mergerino_heap,     1_000,   1_000;
 }
